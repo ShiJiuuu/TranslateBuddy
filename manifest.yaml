@@ -1,0 +1,35 @@
+version: 0.0.1
+type: plugin
+author: translatebuddy
+name: translate_buddy
+label:
+  en_US: TranslateBuddy
+  zh_Hans: 文档翻译
+description:
+  en_US: Format-preserving document translation powered by your Dify models.
+  zh_Hans: 保留原格式的文档翻译，翻译由 Dify 工作区里的模型完成。
+icon: icon.svg
+created_at: "2026-10-23T09:00:00Z"
+resource:
+  memory: 536870912
+  permission:
+    tool:
+      enabled: true
+    model:
+      enabled: true
+      llm: true
+    storage:
+      enabled: true
+      size: 1048576
+plugins:
+  tools:
+    - provider/translate_buddy.yaml
+meta:
+  version: 0.0.1
+  arch:
+    - amd64
+    - arm64
+  runner:
+    language: python
+    version: "3.12"
+    entrypoint: main

@@ -1,0 +1,15 @@
+identity:
+  author: translatebuddy
+  name: translate_buddy
+  label:
+    en_US: TranslateBuddy
+    zh_Hans: 文档翻译
+  description:
+    en_US: Format-preserving document translation.
+    zh_Hans: 保留原格式的文档翻译。
+  icon: icon.svg
+tools:
+  - tools/translate_document.yaml
+extra:
+  python:
+    source: provider/translate_buddy.py

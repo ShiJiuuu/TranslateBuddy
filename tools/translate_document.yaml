@@ -1,0 +1,114 @@
+identity:
+  name: translate_document
+  author: translatebuddy
+  label:
+    en_US: Translate document
+    zh_Hans: 翻译文档
+description:
+  human:
+    en_US: Translate a docx/pdf/xlsx document and return a file in the same format. Formatting is preserved; translation is done by the selected model.
+    zh_Hans: 翻译 docx/pdf/xlsx 文档并返回同格式文件。保留原格式，翻译由所选模型完成。
+  llm: Translate a document file into the target language, preserving the original formatting, and return the translated file.
+parameters:
+  - name: file
+    type: file
+    required: true
+    label:
+      en_US: Document
+      zh_Hans: 文档
+    human_description:
+      en_US: docx / doc / pdf / xlsx / xls
+      zh_Hans: docx / doc / pdf / xlsx / xls
+    llm_description: The document to translate.
+    form: form
+  - name: target_lang
+    type: select
+    required: true
+    default: zh-Hans
+    options:
+      - value: zh-Hans
+        label:
+          en_US: Simplified Chinese
+          zh_Hans: 简体中文
+      - value: en
+        label:
+          en_US: English
+          zh_Hans: 英语
+      - value: ja
+        label:
+          en_US: Japanese
+          zh_Hans: 日语
+      - value: ko
+        label:
+          en_US: Korean
+          zh_Hans: 韩语
+    label:
+      en_US: Target language
+      zh_Hans: 目标语言
+    human_description:
+      en_US: Language of the translated document.
+      zh_Hans: 译文语言。
+    llm_description: Target language code.
+    form: form
+  - name: source_lang
+    type: select
+    required: false
+    default: auto
+    options:
+      - value: auto
+        label:
+          en_US: Auto detect
+          zh_Hans: 自动识别
+      - value: zh-Hans
+        label:
+          en_US: Simplified Chinese
+          zh_Hans: 简体中文
+      - value: en
+        label:
+          en_US: English
+          zh_Hans: 英语
+    label:
+      en_US: Source language
+      zh_Hans: 源语言
+    human_description:
+      en_US: Source language, auto-detect by default.
+      zh_Hans: 源语言，默认自动识别。
+    llm_description: Source language code.
+    form: form
+  - name: model
+    type: model-selector
+    scope: llm
+    required: true
+    label:
+      en_US: Model
+      zh_Hans: 模型
+    human_description:
+      en_US: Model used for translation.
+      zh_Hans: 用于翻译的模型。
+    llm_description: The LLM used for translation.
+    form: form
+  - name: glossary
+    type: file
+    required: false
+    label:
+      en_US: Glossary (CSV)
+      zh_Hans: 术语表（CSV）
+    human_description:
+      en_US: Optional CSV with columns source,target,case_sensitive
+      zh_Hans: 可选，CSV 列：source,target,case_sensitive
+    llm_description: Optional glossary file.
+    form: form
+  - name: output_name
+    type: string
+    required: false
+    label:
+      en_US: Output file name
+      zh_Hans: 输出文件名
+    human_description:
+      en_US: Optional. Defaults to <name>.<lang>.<ext>
+      zh_Hans: 可选，默认 <原名>.<语言>.<扩展名>
+    llm_description: Optional output file name.
+    form: form
+extra:
+  python:
+    source: tools/translate_document.py
