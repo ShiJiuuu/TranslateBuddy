@@ -94,7 +94,7 @@ def test_docx_end_to_end(tmp_path, monkeypatch):
 def test_unsupported_format_is_rejected():
     tool = make_tool()
     params = {
-        "file": SimpleNamespace(url="http://example.test/a.pdf", filename="a.pdf"),
+        "file": SimpleNamespace(url="http://example.test/a.doc", filename="a.doc"),
         "target_lang": "zh-Hans",
         "model": {"provider": "fake", "model": "fake", "mode": "chat"},
     }

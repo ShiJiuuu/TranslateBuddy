@@ -19,7 +19,7 @@ from backend.translator import BatchConfig, load_glossary, translate_segments
 
 log = logging.getLogger(__name__)
 
-SUPPORTED = {".docx", ".xlsx"}
+SUPPORTED = {".docx", ".xlsx", ".pdf"}
 
 
 class TranslateDocumentTool(Tool):
@@ -111,15 +111,17 @@ class TranslateDocumentTool(Tool):
             meta={"mime_type": MIME[suffix], "filename": out_name},
         )
         yield self.create_text_message(summary)
-        yield self.create_json_message(
-            {
-                "output_filename": out_name,
-                "elapsed_seconds": elapsed,
-                "source_lang": source_lang,
-                "target_lang": target_lang,
-                **report.as_dict(),
-            }
-        )
+        payload = {
+            "output_filename": out_name,
+            "elapsed_seconds": elapsed,
+            "source_lang": source_lang,
+            "target_lang": target_lang,
+            **report.as_dict(),
+        }
+        layout_report = getattr(doc, "report", None)
+        if layout_report:
+            payload["layout"] = layout_report
+        yield self.create_json_message(payload)
 
     def _make_invoke(self, model_config):
         def invoke(system_prompt: str, user_prompt: str) -> str:

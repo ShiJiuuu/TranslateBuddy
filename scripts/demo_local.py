@@ -97,7 +97,31 @@ def build_xlsx(path: Path) -> None:
     wb.save(path)
 
 
-BUILDERS = {"docx": build_docx, "xlsx": build_xlsx}
+def build_pdf(path: Path) -> None:
+    import pymupdf
+
+    doc = pymupdf.open()
+    page = doc.new_page(width=595, height=842)
+    page.insert_text((72, 80), "Quarterly Report 2024", fontname="hebo", fontsize=16)
+    page.insert_textbox(
+        pymupdf.Rect(72, 110, 523, 190),
+        "Revenue grew by 18 percent compared with the same period last year, driven by "
+        "strong demand in the enterprise segment.",
+        fontname="helv",
+        fontsize=11,
+    )
+    rows = [("Metric", "Value"), ("Revenue", "1,240"), ("Cost", "880")]
+    y = 230
+    for i, (a, b) in enumerate(rows):
+        page.draw_line((72, y + 20), (523, y + 20), color=(0.85, 0.85, 0.85))
+        page.insert_text((80, y + 13), a, fontname="hebo" if i == 0 else "helv", fontsize=10.5)
+        page.insert_text((300, y + 13), b, fontname="hebo" if i == 0 else "helv", fontsize=10.5)
+        y += 24
+    page.insert_text((72, 800), "Confidential", fontname="helv", fontsize=8)
+    doc.save(path)
+
+
+BUILDERS = {"docx": build_docx, "xlsx": build_xlsx, "pdf": build_pdf}
 
 
 def main() -> None:
@@ -145,12 +169,18 @@ def main() -> None:
                 if run.text:
                     color = run.font.color.rgb if run.font.color and run.font.color.rgb else None
                     print(f"   run={run.text!r} bold={run.bold} italic={run.italic} color={color}")
-    else:
+    elif fmt == "xlsx":
         from openpyxl import load_workbook
 
         ws = load_workbook(out).active
         for row in ws.iter_rows(min_row=1, max_row=6, values_only=True):
             print("  ", row)
+    else:
+        import pymupdf
+
+        result = pymupdf.open(out)
+        print(f"页数：{len(result)}")
+        print(result[0].get_text()[:200])
 
 
 if __name__ == "__main__":

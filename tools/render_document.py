@@ -52,12 +52,14 @@ class RenderDocumentTool(Tool):
             + (f"，缺 {len(missing)} 个分片" if missing else "")
             + (f"，{fallback} 段格式降级" if fallback else "")
         )
-        yield self.create_json_message(
-            {
-                "output_filename": out_name,
-                "segments": len(doc.segments),
-                "applied": applied,
-                "missing_shards": missing,
-                "format_fallback": fallback,
-            }
-        )
+        payload = {
+            "output_filename": out_name,
+            "segments": len(doc.segments),
+            "applied": applied,
+            "missing_shards": missing,
+            "format_fallback": fallback,
+        }
+        layout_report = getattr(doc, "report", None)
+        if layout_report:
+            payload["layout"] = layout_report
+        yield self.create_json_message(payload)
