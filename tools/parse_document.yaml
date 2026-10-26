@@ -1,0 +1,103 @@
+identity:
+  name: parse_document
+  author: translatebuddy
+  label:
+    en_US: Parse document
+    zh_Hans: 解析文档
+description:
+  human:
+    en_US: Parse a document into segments and create a translation job. Use with translate_shard + render_document for large files.
+    zh_Hans: 把文档解析成分段并创建翻译作业。大文件配合 translate_shard + render_document 使用。
+  llm: Parse a document into a job with translation segments, returning a job_id and a shard plan.
+parameters:
+  - name: file
+    type: file
+    required: true
+    label:
+      en_US: Document
+      zh_Hans: 文档
+    human_description:
+      en_US: docx or xlsx
+      zh_Hans: docx 或 xlsx
+    llm_description: The document to parse.
+    form: form
+  - name: target_lang
+    type: select
+    required: true
+    default: zh-Hans
+    options:
+      - value: zh-Hans
+        label:
+          en_US: Simplified Chinese
+          zh_Hans: 简体中文
+      - value: en
+        label:
+          en_US: English
+          zh_Hans: 英语
+      - value: ja
+        label:
+          en_US: Japanese
+          zh_Hans: 日语
+      - value: ko
+        label:
+          en_US: Korean
+          zh_Hans: 韩语
+    label:
+      en_US: Target language
+      zh_Hans: 目标语言
+    human_description:
+      en_US: Language of the translated document.
+      zh_Hans: 译文语言。
+    llm_description: Target language code.
+    form: form
+  - name: source_lang
+    type: select
+    required: false
+    default: auto
+    options:
+      - value: auto
+        label:
+          en_US: Auto detect
+          zh_Hans: 自动识别
+      - value: zh-Hans
+        label:
+          en_US: Simplified Chinese
+          zh_Hans: 简体中文
+      - value: en
+        label:
+          en_US: English
+          zh_Hans: 英语
+    label:
+      en_US: Source language
+      zh_Hans: 源语言
+    human_description:
+      en_US: Source language, auto-detect by default.
+      zh_Hans: 源语言，默认自动识别。
+    llm_description: Source language code.
+    form: form
+  - name: glossary
+    type: file
+    required: false
+    label:
+      en_US: Glossary (CSV)
+      zh_Hans: 术语表（CSV）
+    human_description:
+      en_US: Optional CSV with columns source,target
+      zh_Hans: 可选，CSV 列：source,target
+    llm_description: Optional glossary file.
+    form: form
+  - name: shard_items
+    type: number
+    required: false
+    default: 60
+    label:
+      en_US: Segments per shard
+      zh_Hans: 每片段数
+    human_description:
+      en_US: How many segments each shard contains (default 60).
+      zh_Hans: 每个分片包含多少段（默认 60）。
+    llm_description: Segments per shard.
+    form: form
+extra:
+  python:
+    source: tools/parse_document.py

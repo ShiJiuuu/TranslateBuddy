@@ -1,0 +1,61 @@
+identity:
+  name: translate_shard
+  author: translatebuddy
+  label:
+    en_US: Translate shard
+    zh_Hans: 翻译分片
+description:
+  human:
+    en_US: Translate one shard of a parsed job. Safe to re-run — finished shards are skipped.
+    zh_Hans: 翻译已解析作业的一个分片。可重复执行，已完成的分片会跳过。
+  llm: Translate one shard of a job created by parse_document.
+parameters:
+  - name: job_id
+    type: string
+    required: true
+    label:
+      en_US: Job ID
+      zh_Hans: 作业 ID
+    human_description:
+      en_US: Returned by parse_document.
+      zh_Hans: parse_document 返回的 job_id。
+    llm_description: The job id.
+    form: form
+  - name: shard_index
+    type: number
+    required: true
+    label:
+      en_US: Shard index
+      zh_Hans: 分片序号
+    human_description:
+      en_US: Zero-based index from the shard plan.
+      zh_Hans: 分片计划里的序号（从 0 开始）。
+    llm_description: Zero-based shard index.
+    form: form
+  - name: model
+    type: model-selector
+    scope: llm
+    required: true
+    label:
+      en_US: Model
+      zh_Hans: 模型
+    human_description:
+      en_US: Model used for translation.
+      zh_Hans: 用于翻译的模型。
+    llm_description: The LLM used for translation.
+    form: form
+  - name: force
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: Force re-translate
+      zh_Hans: 强制重译
+    human_description:
+      en_US: Ignore cached result and translate again.
+      zh_Hans: 忽略已有结果，重新翻译。
+    llm_description: Force re-translate.
+    form: form
+extra:
+  python:
+    source: tools/translate_shard.py

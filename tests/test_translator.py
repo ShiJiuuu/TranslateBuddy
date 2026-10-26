@@ -43,4 +43,47 @@ def test_json_inside_fence_is_accepted():
 
 def test_glossary_csv():
     raw = "source,target\nRevenue,营收\n\n".encode()
-    assert load_glossary(raw) == {"Revenue": "营收"}
+    glossary = load_glossary(raw)
+    assert glossary.pairs == {"Revenue": "营收"}
+
+
+def test_duplicate_texts_are_translated_once():
+    segments = [
+        Segment(id="a", kind="p", text="Confidential", plain="Confidential"),
+        Segment(id="b", kind="p", text="Confidential", plain="Confidential"),
+        Segment(id="c", kind="p", text="Other", plain="Other"),
+    ]
+    calls = []
+
+    def invoke(system, user):
+        payload = json.loads(user)
+        calls.append(len(payload["items"]))
+        return json.dumps(
+            {"items": [{"id": i["id"], "text": "译" + i["text"]} for i in payload["items"]]},
+            ensure_ascii=False,
+        )
+
+    out = translate_segments(segments, invoke, "zh-Hans")
+    assert calls == [2]
+    assert out["a"] == out["b"] == "译Confidential"
+    assert out["c"] == "译Other"
+
+
+def test_glossary_locks_terms_during_translation():
+    raw = "source,target\nRevenue,营收\n".encode()
+    glossary = load_glossary(raw)
+    seen = []
+
+    def invoke(system, user):
+        payload = json.loads(user)
+        seen.extend(item["text"] for item in payload["items"])
+        return json.dumps(
+            {"items": [{"id": i["id"], "text": i["text"]} for i in payload["items"]]},
+            ensure_ascii=False,
+        )
+
+    segments = [Segment(id="s0", kind="p", text="Revenue grew 18%", plain="Revenue grew 18%")]
+    out = translate_segments(segments, invoke, "zh-Hans", glossary=glossary)
+
+    assert "Revenue" not in seen[0]          # 模型看不到术语原文
+    assert out["s0"] == "营收 grew 18%"      # 翻完还原成目标词

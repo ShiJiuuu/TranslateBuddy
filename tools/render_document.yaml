@@ -1,0 +1,37 @@
+identity:
+  name: render_document
+  author: translatebuddy
+  label:
+    en_US: Render document
+    zh_Hans: 回写文档
+description:
+  human:
+    en_US: Apply all finished shard translations and return the translated file.
+    zh_Hans: 把已完成分片的译文写回原文件并返回译文文件。
+  llm: Render the translated document for a job created by parse_document.
+parameters:
+  - name: job_id
+    type: string
+    required: true
+    label:
+      en_US: Job ID
+      zh_Hans: 作业 ID
+    human_description:
+      en_US: Returned by parse_document.
+      zh_Hans: parse_document 返回的 job_id。
+    llm_description: The job id.
+    form: form
+  - name: output_name
+    type: string
+    required: false
+    label:
+      en_US: Output file name
+      zh_Hans: 输出文件名
+    human_description:
+      en_US: Optional. Defaults to <name>.<lang>.<ext>
+      zh_Hans: 可选，默认 <原名>.<语言>.<扩展名>
+    llm_description: Optional output file name.
+    form: form
+extra:
+  python:
+    source: tools/render_document.py

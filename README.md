@@ -4,18 +4,28 @@ Dify 文档翻译插件：**格式优先**。翻译交给 workspace 里已配置
 
 设计文档见 [docs/方案.md](docs/方案.md)。
 
-## 当前状态（M0）
+## 当前状态（M1）
 
 | 能力 | 状态 |
 |---|---|
 | docx 解析（正文 / 表格 / 页眉页脚 / 脚注批注） | ✅ |
-| 段内多格式（run 分组 + `[[n]]` 标签回填） | ✅ |
-| 标签失守时降级为整段单格式 | ✅ |
+| 段内多格式（run 分组 + `[[n]]` 标签回填，失守时降级） | ✅ |
+| xlsx L2 改写（sharedStrings / inlineStr，不经过 openpyxl） | ✅ |
+| 作业化：parse_document / translate_shard / render_document | ✅ 断点续跑、分片幂等 |
+| 术语表：提示词 + 占位符锁定 | ✅ |
+| 同文本去重（表格重复表头只翻一次） | ✅ |
 | zip 级就地改写（其余部件字节不变） | ✅ |
 | 流式下载（不整块读内存） | ✅ |
 | 模型调用（`model-selector` + 反向调用） | ✅ 代码就绪，待接真模型联调 |
-| xlsx / pdf | ⏳ M1 / M2 |
+| pdf | ⏳ M2 |
 | doc / xls（LibreOffice） | ⏳ M4 |
+
+### 两种用法
+
+**小文件（≤50 页）**：一个 `翻译文档` 节点搞定。
+
+**大文件（100+ 页）**：`解析文档` → 迭代 `翻译分片` → `回写文档`。
+分片结果落在插件工作目录，工作流中断后重跑会命中缓存、不重复花钱。
 
 ## 目录
 
@@ -25,8 +35,12 @@ provider/                      tool provider（无凭证）
 tools/translate_document.py    工具实现：下载 → 解析 → 翻译 → 回写 → blob
 backend/
   docx_io.py                   DOCX 的 L2 就地改写
+  xlsx_io.py                   XLSX 的 L2 就地改写
+  formats.py                   按扩展名分发
+  jobs.py                      作业 / 分片 / 断点续跑
+  glossary.py                  术语占位符锁定
   tags.py                      [[n]] 格式片段标记
-  translator.py                批处理 / JSON 解析 / 重试
+  translator.py                批处理 / 去重 / JSON 解析 / 重试
   qa.py                        数字、占位符等基础校验
   files.py                     流式下载
 scripts/

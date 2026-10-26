@@ -9,9 +9,9 @@ from dify_plugin import Tool
 from dify_plugin.entities.model.message import SystemPromptMessage, UserPromptMessage
 from dify_plugin.entities.tool import ToolInvokeMessage
 
-from backend.docx_io import DocxDocument
 from backend.errors import TranslationFailed, UnsupportedFormat
 from backend.files import download_to
+from backend.formats import MIME, PLANNED, open_document
 from backend.ir import DocumentReport
 from backend.qa import check
 from backend.tags import strip_tags
@@ -19,14 +19,7 @@ from backend.translator import BatchConfig, load_glossary, translate_segments
 
 log = logging.getLogger(__name__)
 
-MIME = {
-    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ".pdf": "application/pdf",
-    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-}
-
-SUPPORTED = {".docx"}
-PLANNED = {".pdf", ".xlsx", ".doc", ".xls"}
+SUPPORTED = {".docx", ".xlsx"}
 
 
 class TranslateDocumentTool(Tool):
@@ -37,14 +30,12 @@ class TranslateDocumentTool(Tool):
 
         original_name = Path(getattr(file, "filename", None) or "document.docx").name
         suffix = Path(original_name).suffix.lower()
-        if suffix in PLANNED:
-            raise UnsupportedFormat(
-                f"{suffix} 还没有在当前版本启用（M0 只交付 docx）。"
-                f"计划：xlsx=M1、pdf=M2、doc/xls=M4。",
-                {"ext": suffix},
-            )
         if suffix not in SUPPORTED:
-            raise UnsupportedFormat(f"不支持的格式：{suffix or '(无扩展名)'}")
+            planned = PLANNED.get(suffix)
+            hint = f"，计划在 {planned} 支持" if planned else ""
+            raise UnsupportedFormat(
+                f"不支持的格式：{suffix or '(无扩展名)'}{hint}", {"ext": suffix}
+            )
 
         target_lang = tool_parameters.get("target_lang") or "zh-Hans"
         source_lang = tool_parameters.get("source_lang") or "auto"
@@ -68,7 +59,7 @@ class TranslateDocumentTool(Tool):
             download_to(file.url, source)
 
             yield self.create_text_message("解析文档结构 …")
-            doc = DocxDocument(source)
+            doc = open_document(source)
             segments = doc.segments
             if not segments:
                 raise TranslationFailed("没有找到可翻译的文本（文档可能是空的或全是图片）")

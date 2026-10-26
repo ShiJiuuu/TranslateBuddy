@@ -10,6 +10,9 @@ identity:
   icon: icon.svg
 tools:
   - tools/translate_document.yaml
+  - tools/parse_document.yaml
+  - tools/translate_shard.yaml
+  - tools/render_document.yaml
 extra:
   python:
     source: provider/translate_buddy.py

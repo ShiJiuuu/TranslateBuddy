@@ -16,7 +16,7 @@ SOURCE LANGUAGE: {source}
 Rules:
 1. Translate every "text" value into {target}. Keep meaning, tone and terminology consistent across the whole document.
 2. Inline markers look like [[0]] ... [[/0]]. They mark formatting boundaries. Keep every marker EXACTLY as given: same digits, same order, and around the corresponding translated words. Never translate, drop, merge, renumber or invent markers.
-3. Keep numbers, dates, currency, units, code, URLs, emails and placeholders such as {{name}}, %s, [[link]] unchanged.
+3. Keep numbers, dates, currency, units, code, URLs, emails and placeholders unchanged: {{name}}, %s, [[link]] and glossary markers like ⟦T0⟧.
 4. Do not add explanations, notes, quotes or extra punctuation. Keep leading/trailing spaces when they are significant.
 5. Output valid JSON only, no markdown fence:
    {{"items": [{{"id": "<id>", "text": "<translated text>"}}]}}
