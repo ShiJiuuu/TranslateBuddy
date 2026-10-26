@@ -46,30 +46,34 @@ python3 -m venv .venv
 
 `demo_local.py` 用词典桩代替模型，验证的是格式链路；接真模型只需把 `stub_invoke` 换成 `session.model.llm.invoke`（`tools/translate_document.py` 里已实现）。
 
-## 装进 Dify（自托管 Docker）
+## 装进 Dify
 
-1. **改配置**
+网页端逐步操作见 [docs/联调指南.md](docs/联调指南.md)（Cloud 与自建都适用）。
+下面只列命令。
 
-   ```bash
-   python scripts/setup_dify_env.py /path/to/dify/docker
-   cd /path/to/dify/docker && docker compose up -d
-   ```
+### 打包
 
-   改的是：上传 500MB、nginx 500M、插件产出 600MB、单次调用 1800s、工作流 7200s、长连接 7200s。
-   用 `--check` 可以随时核对。
+```bash
+python scripts/package.py                                    # dist/translate_buddy-<version>.difypkg
+python scripts/validate_package.py dist/translate_buddy-0.0.2.difypkg
+```
 
-2. **打包**
+### 自托管 Docker
 
-   ```bash
-   dify plugin package . -o translate_buddy.difypkg
-   ```
+**只有需要传大文件时才改配置**（Cloud 改不了，直接跳过）：
 
-   没有 CLI 时也可以把目录打成 zip 后改后缀（根目录必须保留 `manifest.yaml`）。
+```bash
+python scripts/setup_dify_env.py /path/to/dify/docker
+cd /path/to/dify/docker && docker compose up -d
+```
 
-3. **安装**：Dify 后台 → 插件 → 安装 → 本地包。
-   如果提示签名校验失败，在 `.env` 设 `FORCE_VERIFYING_SIGNATURE=false` 后重启 `plugin_daemon`（仅自托管、自己打包时这么做）。
+改的是：上传 500MB、nginx 500M、插件产出 600MB、单次调用 1800s、工作流 7200s、长连接 7200s。
+用 `--check` 可以随时核对。
 
-4. **使用**：工作流里加「翻译文档」节点，选文件变量、目标语言、模型。
+**安装**：Dify 控制台 → 插件 → 安装插件 → 本地文件 → 选 `.difypkg`。
+签名校验失败时（自建默认开启），`.env` 设 `FORCE_VERIFYING_SIGNATURE=false` 后重建 `plugin_daemon`。
+
+**使用**：工作流里加「翻译文档」节点，绑定文件变量、选目标语言和模型，结束节点输出 `files`。
 
 ## 已知限制
 
